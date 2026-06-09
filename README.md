@@ -2,16 +2,14 @@
 Real-time Linux toolkit for automotive ECUs
 
 ## What this is
-Tools I built to explore how aerospace RTOS concepts can solve automotive real-time Linux problems. Specifically focused on making Linux work in safety-critical ECUs.
+CLI tools exploring aerospace RTOS concepts for automotive real-time Linux. Built while studying embedded systems for consumer electronics and automotive applications.
 
-## Why I built this
-German automotive companies (BMW/Porsche/Audi) need people who understand:
-- Mixed-criticality on multicore (safety + infotainment)
-- Real-time Linux performance (deadlines, jitter)
-- Yocto builds for embedded systems
-- ISO 26262 safety standards
+## Why this project exists
+Targeted at roles in:
+- Automotive (BMW, Porsche, Audi - embedded software engineer positions)
+- Consumer electronics with real-time requirements (infotainment systems)
 
-This project shows I can hit those requirements with a different angle - aerospace experience.
+These industries need Linux that meets automotive safety deadlines. Most candidates know QNX/VxWorks. I'm applying aerospace RTOS experience (partitioning, timing) to solve Linux real-time problems - a crossover skill most don't have.
 
 ## How to use
 
