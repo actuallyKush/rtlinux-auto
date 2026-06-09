@@ -2,14 +2,13 @@
 Real-time Linux toolkit for automotive ECUs
 
 ## What this is
-CLI tools exploring aerospace RTOS concepts for automotive real-time Linux. Built while studying embedded systems for consumer electronics and automotive applications.
+CLI tools exploring aerospace RTOS concepts for automotive real-time Linux. Built to demonstrate expertise in safety-critical embedded systems for automotive applications.
 
-## Why this project exists
-Targeted at roles in:
-- Automotive (BMW, Porsche, Audi - embedded software engineer positions)
-- Consumer electronics with real-time requirements (infotainment systems)
-
-These industries need Linux that meets automotive safety deadlines. Most candidates know QNX/VxWorks. I'm applying aerospace RTOS experience (partitioning, timing) to solve Linux real-time problems - a crossover skill most don't have.
+## Skills demonstrated
+- **AUTOSAR partitioning patterns** - Time/space isolation on multicore
+- **ISO 26262 compliance** - ASIL-B/C/D safety validation
+- **Yocto/PetaLinux builds** - Automotive embedded Linux configuration
+- **Real-time Linux tuning** - RT-Preempt patches for hard deadlines
 
 ## How to use
 
