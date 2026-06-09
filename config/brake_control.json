@@ -1,0 +1,21 @@
+{
+  "ecu_name": "brake_control",
+  "asili_level": "D",
+  "timing_requirements": {
+    "deadline_ms": 1,
+    "periodicity_ms": 5,
+    "jitter_us": 30
+  },
+  "hardware": {
+    "microcontroller": "TC399",
+    "cores": 6,
+    "memory_kb": 2048,
+    "can_channels": 2
+  },
+  "linux_requirements": {
+    "kernel_rt": true,
+    "memory_locking": true,
+    "cpu_shielding": ["core0", "core1"],
+    "priority_inheritance": true
+  }
+}

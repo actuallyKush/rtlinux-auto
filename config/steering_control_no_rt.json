@@ -1,0 +1,21 @@
+{
+  "ecu_name": "steering_control",
+  "asili_level": "D",
+  "timing_requirements": {
+    "deadline_ms": 10,
+    "periodicity_ms": 20,
+    "jitter_us": 60
+  },
+  "hardware": {
+    "microcontroller": "TC374",
+    "cores": 3,
+    "memory_kb": 10240,
+    "can_channels": 1
+  },
+  "linux_requirements": {
+    "kernel_rt": false,
+    "memory_locking": false,
+    "cpu_shielding": [],
+    "priority_inheritance": false
+  }
+}

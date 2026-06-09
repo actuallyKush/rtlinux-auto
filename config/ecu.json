@@ -1,0 +1,21 @@
+{
+  "ecu_name": "engine_control",
+  "asili_level": "B",
+  "timing_requirements": {
+    "deadline_ms": 5,
+    "periodicity_ms": 10,
+    "jitter_us": 100
+  },
+  "hardware": {
+    "microcontroller": "TC374",
+    "cores": 3,
+    "memory_kb": 4096,
+    "can_channels": 2
+  },
+  "linux_requirements": {
+    "kernel_rt": true,
+    "memory_locking": true,
+    "cpu_shielding": ["core0"],
+    "priority_inheritance": true
+  }
+}

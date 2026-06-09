@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+"""
+rtlinux-auto: Real-time Linux toolkit for automotive ECUs
+Leverages aerospace RTOS (ARINC653/XtratuM) experience for automotive
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from timing_analysis import analyze_deadline_feasibility, suggest_rt_patches
+from yocto_generator import generate_rt_layer, generate_autosar_partitions
+from compliance_checker import check_compliance, generate_safety_case
+
+def analyze_timing(args):
+    """Analyze ECU timing requirements vs Linux capabilities"""
+    print(f"Analyzing ECU config: {args.ecu_config}")
+    
+    with open(args.ecu_config) as f:
+        ecu_config = json.load(f)
+    
+    print(f"\nECU: {ecu_config['ecu_name']}")
+    print(f"ASIL Level: {ecu_config['asili_level']}")
+    print(f"Deadline: {ecu_config['timing_requirements']['deadline_ms']}ms")
+    
+    results = analyze_deadline_feasibility(ecu_config)
+    print("\nTiming Analysis Results:")
+    for key, value in results.items():
+        status = "✓" if value else "✗"
+        print(f"  {status} {key}: {value}")
+    
+    suggestions = suggest_rt_patches(ecu_config)
+    print(f"\nRecommended RT Patches: {', '.join(suggestions) if suggestions else 'None'}")
+    
+    return 0
+
+def generate_layer(args):
+    """Generate Yocto meta-layer for automotive RT Linux"""
+    print(f"Generating Yocto layer for target: {args.target}")
+    
+    layer = generate_rt_layer(args.target, args.output)
+    
+    if "error" in layer:
+        print(f"Error: {layer['error']}")
+        print(f"Supported targets: TC3XX, R-CAR, IMX6")
+        return 1
+    
+    partitions = generate_autosar_partitions(args.target)
+    
+    print(f"\nLayer Name: {layer['name']}")
+    print(f"Kernel Config: {layer['kernel_config']}")
+    print(f"Recommended Patches: {layer['patches']}")
+    
+    print("\nGenerated AUTOSAR Partitions:")
+    for core, config in partitions.items():
+        print(f"  {core}: {config['purpose']} ({config['schedule']})")
+    
+    return 0
+
+def verify_compliance(args):
+    """Verify ISO 26262 compliance"""
+    print(f"Verifying ISO 26262 compliance for ASIL-{args.asil_level}")
+    
+    script_dir = Path(__file__).parent.parent
+    config_path = Path(args.ecu_config) if args.ecu_config else script_dir / "config" / "ecu.json"
+    with open(config_path) as f:
+        ecu_config = json.load(f)
+    
+    results = check_compliance(ecu_config, args.asil_level)
+    safety = generate_safety_case(ecu_config, args.asil_level)
+    
+    print(f"\nCompliance Status: {'✓ PASSED' if results['compliant'] else '✗ FAILED'}")
+    
+    if not results['compliant'] and results.get('missing_features'):
+        print("\nMissing required features:")
+        for feature in results['missing_features']:
+            print(f"  ✗ {feature}")
+    
+    print("\nSafety Goals:")
+    for goal in safety['safety_goals']:
+        print(f"  - {goal}")
+    
+    return 0 if results['compliant'] else 1
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Real-time Linux toolkit for automotive ECUs",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Analyze command
+    analyze_parser = subparsers.add_parser("analyze", help="Analyze timing requirements")
+    analyze_parser.add_argument("--ecu-config", required=True, help="ECU configuration JSON")
+    analyze_parser.set_defaults(func=analyze_timing)
+
+    # Generate command
+    gen_parser = subparsers.add_parser("generate", help="Generate Yocto layer")
+    gen_parser.add_argument("--target", required=True, help="Target platform (e.g., TC3xx, R-Car)")
+    gen_parser.add_argument("--output", required=True, help="Output directory for meta-layer")
+    gen_parser.set_defaults(func=generate_layer)
+
+    # Verify command
+    verify_parser = subparsers.add_parser("verify", help="Verify compliance")
+    verify_parser.add_argument("--iso26262", action="store_true", help="Check ISO 26262 compliance")
+    verify_parser.add_argument("--asil-level", choices=["A", "B", "C", "D"], help="ASIL level")
+    verify_parser.add_argument("--ecu-config", help="ECU configuration JSON (optional)")
+    verify_parser.set_defaults(func=verify_compliance)
+
+    # Default help
+    if len(sys.argv) == 1:
+        parser.print_help()
+        return 0
+
+    args = parser.parse_args()
+    if args.func:
+        return args.func(args)
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
