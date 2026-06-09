@@ -11,8 +11,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from timing_analysis import analyze_deadline_feasibility, suggest_rt_patches
-from yocto_generator import generate_rt_layer, generate_autosar_partitions
+from yocto_generator import generate_rt_layer, generate_autosar_partitions, create_layer_structure
 from compliance_checker import check_compliance, generate_safety_case
+from kernel_config import generate_rt_config, write_config_file
+from can_simulator import CANSimulator, parse_can_log
 
 def analyze_timing(args):
     """Analyze ECU timing requirements vs Linux capabilities"""
@@ -84,6 +86,41 @@ def verify_compliance(args):
     
     return 0 if results['compliant'] else 1
 
+def generate_kernel_config(args):
+    print(f"Generating RT kernel config for {args.target} ASIL-{args.asil_level}")
+    
+    config = generate_rt_config(args.target, args.asil_level)
+    
+    print("\nKey RT-Preempt configs:")
+    for key, value in list(config.items())[:5]:
+        print(f"  {key}={value}")
+    
+    if args.output:
+        write_config_file(config, args.output)
+        print(f"\nConfig written to: {args.output}")
+    
+    return 0
+
+def simulate_can(args):
+    print(f"Simulating CAN traffic for {args.ecu_type} ECU")
+    
+    simulator = CANSimulator()
+    messages = simulator.simulate_ecu_traffic(args.ecu_type)
+    
+    print(f"\nGenerated {len(messages)} CAN messages:")
+    for msg in messages:
+        print(f"  ID {hex(msg['id'])}: {msg['desc']}")
+    
+    return 0
+
+def create_layer_cmd(args):
+    print(f"Creating Yocto layer structure for {args.target}")
+    
+    base_path = create_layer_structure(args.output, args.target)
+    print(f"Layer created at: {base_path}")
+    
+    return 0
+
 def main():
     parser = argparse.ArgumentParser(
         description="Real-time Linux toolkit for automotive ECUs",
@@ -108,6 +145,24 @@ def main():
     verify_parser.add_argument("--asil-level", choices=["A", "B", "C", "D"], help="ASIL level")
     verify_parser.add_argument("--ecu-config", help="ECU configuration JSON (optional)")
     verify_parser.set_defaults(func=verify_compliance)
+
+    # Kernel config command
+    kernel_parser = subparsers.add_parser("kernel-config", help="Generate RT kernel config")
+    kernel_parser.add_argument("--target", required=True, help="Target platform")
+    kernel_parser.add_argument("--asil-level", required=True, help="ASIL level")
+    kernel_parser.add_argument("--output", help="Output config file path")
+    kernel_parser.set_defaults(func=generate_kernel_config)
+
+    # CAN simulate command
+    can_parser = subparsers.add_parser("can-simulate", help="Simulate ECU CAN traffic")
+    can_parser.add_argument("--ecu-type", required=True, help="ECU type (engine/brake/steering)")
+    can_parser.set_defaults(func=simulate_can)
+
+    # Create layer command
+    layer_parser = subparsers.add_parser("create-layer", help="Create Yocto layer directory structure")
+    layer_parser.add_argument("--target", required=True, help="Target platform")
+    layer_parser.add_argument("--output", required=True, help="Output directory")
+    layer_parser.set_defaults(func=create_layer_cmd)
 
     # Default help
     if len(sys.argv) == 1:

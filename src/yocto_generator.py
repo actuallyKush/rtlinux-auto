@@ -40,21 +40,28 @@ def generate_rt_layer(target, output_dir):
 
 def generate_autosar_partitions(target):
     partitions = {
-        "core0": {
-            "purpose": "safety_critical",
-            "isolation": "full",
-            "schedule": "time_triggered"
-        },
-        "core1": {
-            "purpose": "best_effort",
-            "isolation": "partitioned",
-            "schedule": "event_triggered"
-        },
-        "core2": {
-            "purpose": "infotainment",
-            "isolation": "isolated",
-            "schedule": "time_triggered"
-        }
+        "core0": {"purpose": "safety_critical", "isolation": "full", "schedule": "time_triggered"},
+        "core1": {"purpose": "best_effort", "isolation": "partitioned", "schedule": "event_triggered"},
+        "core2": {"purpose": "infotainment", "isolation": "isolated", "schedule": "time_triggered"}
     }
-    
     return partitions
+
+def create_layer_structure(output_dir: str, target: str):
+    """Create actual Yocto layer directory structure"""
+    import os
+    
+    layer_name = f"meta-automotive-rt-{target.lower()}"
+    base_path = os.path.join(output_dir, layer_name)
+    
+    # Create layer structure
+    dirs = [
+        "conf",
+        "recipes-kernel/linux",
+        "recipes-core/rt-tests",
+        "recipes-tools/can-utils"
+    ]
+    
+    for d in dirs:
+        os.makedirs(os.path.join(base_path, d), exist_ok=True)
+    
+    return base_path
