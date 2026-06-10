@@ -16,19 +16,31 @@ CLI tools exploring aerospace RTOS concepts for automotive real-time Linux. Buil
 ```bash
 python3 bin/rtlinux-auto analyze --ecu-config config/ecu.json
 ```
-Outputs RT-Preempt patch recommendations based on deadline/jitter.
+Outputs RT-Preempt patch recommendations.
 
-### 2. Generate Yocto structure
+### 2. Generate kernel config
 ```bash
-python3 bin/rtlinux-auto generate --target TC3XX --output ./meta-auto
+python3 bin/rtlinux-auto kernel-config --target TC3XX --asil-level D --output config.cfg
 ```
-Creates automotive-focused Yocto layer structure.
+Creates RT-Preempt kernel config.
 
-### 3. Validate safety compliance  
+### 3. Simulate CAN traffic
+```bash
+python3 bin/rtlinux-auto can-simulate --ecu-type brake
+```
+Shows brake ECU CAN message patterns.
+
+### 4. Create Yocto layer
+```bash
+python3 bin/rtlinux-auto create-layer --target TC3XX --output ./meta-auto
+```
+Creates bitbake layer structure.
+
+### 5. Validate safety compliance  
 ```bash
 python3 bin/rtlinux-auto verify --iso26262 --asil-level B
 ```
-Checks ISO 26262 ASIL-B requirements.
+Checks ISO 26262 compliance.
 
 ## What the code does
 
@@ -43,12 +55,25 @@ Generates Yocto meta-layer configs for automotive MCUs:
 - TC3XX (Infineon) - brake ECUs
 - R-CAR (Renesas) - infotainment  
 - i.MX (NXP) - gateway/body
+- Creates actual directory structure with `create-layer` command
 
 ### compliance_checker.py
 Validates ISO 26262 compliance. Catches missing:
 - RT kernel (required ASIL-B+)
 - Memory locking (required ASIL-B+)
 - CPU shielding (required ASIL-C+)
+
+### kernel_config.py
+Generates real RT-Preempt kernel configs:
+- ASIL-D gets full RT-Preempt with debugging
+- ASIL-C/B get selective RT features
+- Output ready for Yocto builds
+
+### can_simulator.py
+Simulates automotive CAN traffic patterns:
+- Engine: RPM, temperature, status messages
+- Brake: pressure, pedal position, fault status
+- Steering: angle, torque messages
 
 ## Test configs
 
