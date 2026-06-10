@@ -1,0 +1,15 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - run: python3 bin/rtlinux-auto --help
+    - run: python3 bin/rtlinux-auto analyze --ecu-config config/ecu.json
+    - run: python3 bin/rtlinux-auto generate --target TC3XX --output /tmp/layer
+    - run: python3 bin/rtlinux-auto verify --iso26262 --asil-level B

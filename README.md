@@ -6,9 +6,11 @@ CLI tools exploring aerospace RTOS concepts for automotive real-time Linux. Buil
 
 ## Skills demonstrated
 - **AUTOSAR partitioning patterns** - Time/space isolation on multicore
-- **ISO 26262 compliance** - ASIL-B/C/D safety validation
+- **ISO 26262-inspired assessment** - ASIL-B/C/D safety checklist
 - **Yocto/PetaLinux builds** - Automotive embedded Linux configuration
 - **Real-time Linux tuning** - RT-Preempt patches for hard deadlines
+
+> Note: This is an assessment tool following ISO 26262 principles, not a formal compliance validator.
 
 ## How to use
 
@@ -58,7 +60,7 @@ Generates Yocto meta-layer configs for automotive MCUs:
 - Creates actual directory structure with `create-layer` command
 
 ### compliance_checker.py
-Validates ISO 26262 compliance. Catches missing:
+ISO 26262-inspired assessment. Checks for missing:
 - RT kernel (required ASIL-B+)
 - Memory locking (required ASIL-B+)
 - CPU shielding (required ASIL-C+)
@@ -79,7 +81,7 @@ Simulates automotive CAN traffic patterns:
 
 - `config/ecu.json` - ASIL-B body control ECU
 - `config/brake_control.json` - ASIL-D brake system
-- `config/steering_control_no_rt.json` - Broken config for testing
+- `config/steering_control_no_rt.json` - Intentionally non-compliant config
 
 ## Potential extensions
 - Actual bitbake recipe generation

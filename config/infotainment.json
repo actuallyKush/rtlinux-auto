@@ -1,0 +1,21 @@
+{
+  "ecu_name": "infotainment",
+  "asili_level": "A",
+  "timing_requirements": {
+    "deadline_ms": 50,
+    "periodicity_ms": 100,
+    "jitter_us": 400
+  },
+  "hardware": {
+    "microcontroller": "IMX6",
+    "cores": 4,
+    "memory_kb": 2048,
+    "can_channels": 2
+  },
+  "linux_requirements": {
+    "kernel_rt": false,
+    "memory_locking": false,
+    "cpu_shielding": [],
+    "priority_inheritance": false
+  }
+}
